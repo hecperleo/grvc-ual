@@ -79,23 +79,22 @@ def main():
                                            env=gz_env, shell=True, preexec_fn=os.setsid)
 
     # Start gazebo client
-    time.sleep(0.2)
-    client_args = "rosrun gazebo_ros gzclient __name:=gzclient"
-    client_out = open(temp_dir + '/gzclient.out', 'w')
-    client_err = open(temp_dir + '/gzclient.err', 'w')
-    client = subprocess.Popen(client_args, stdout=client_out, stderr=client_err, cwd=temp_dir, \
-                                           env=gz_env, shell=True, preexec_fn=os.setsid)
+    # time.sleep(0.2)
+    # client_args = "rosrun gazebo_ros gzclient __name:=gzclient"
+    # client_out = open(temp_dir + '/gzclient.out', 'w')
+    # client_err = open(temp_dir + '/gzclient.err', 'w')
+    # client = subprocess.Popen(client_args, stdout=client_out, stderr=client_err, cwd=temp_dir, \
+    #                                        env=gz_env, shell=True, preexec_fn=os.setsid)
 
     rospy.spin()  # Now I'm a ros node, jus wait
 
     # Kill'em all
-    if client.poll() is None:
-        os.killpg(os.getpgid(client.pid), signal.SIGTERM)  # TODO: SIGKILL?
+    # if client.poll() is None:
+    #     os.killpg(os.getpgid(client.pid), signal.SIGTERM)  # TODO: SIGKILL?
     if server.poll() is None:
         os.killpg(os.getpgid(server.pid), signal.SIGTERM)  # TODO: SIGKILL?
     # Close log files
-    client_out.close()
-    client_err.close()
+    # client_out.close()
     server_out.close()
     server_err.close()
 
