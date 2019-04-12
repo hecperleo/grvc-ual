@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<robot name="mbzirc_velodyne" 
+<robot name="iris_velodyne" 
   xmlns:xacro="http://ros.org/wiki/xacro">
   <!-- Properties that can be assigned at build time as arguments.
   Is there a reason not to make all properties arguments?
@@ -22,8 +22,8 @@
   <!-- macros for gazebo plugins, sensors -->
   <xacro:include filename="$(find robots_description)/urdf/component_snippets.xacro" />
 
-  <!-- Instantiate mbzirc_velodyne "mechanics" -->
-  <xacro:include filename="$(find robots_description)/models/mbzirc_velodyne/geometry.xacro" />
+  <!-- Instantiate iris_velodyne "mechanics" -->
+  <xacro:include filename="$(find robots_description)/models/iris_velodyne/geometry.xacro" />
 
   <xacro:if value="$(arg enable_gps_plugin)">
     <!-- Instantiate gps plugin. -->
