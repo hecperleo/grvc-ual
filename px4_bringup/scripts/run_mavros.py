@@ -22,6 +22,8 @@ def main():
                         help='set fcu_url manually in custom mode')
     parser.add_argument('-gcs_url', type=str, default="",
                         help='set gcs_url manually in custom mode')
+    parser.add_argument('-rtcm_topic', type=str, default="",
+                        help='set topic for gps rtk corrections')
     args, unknown = parser.parse_known_args()
     utils.check_unknown_args(unknown)
 
@@ -50,6 +52,8 @@ def main():
         subprocess.call("rosparam set " + node_name + "/fcu_url " + fcu_url, shell=True)
         subprocess.call("rosparam set " + node_name + "/gcs_url " + \
         udp_config["gcs_url"], shell=True)
+        # Set target MAV_SYSTEM_ID, only on sitl. Consider extension to other modes.
+        subprocess.call("rosparam set " + node_name + "/target_system_id " + str(args.id), shell=True)
     elif args.mode == "serial":
         fcu_url = "serial:///dev/ttyACM0:57600"
         subprocess.call("rosparam set " + node_name + "/fcu_url " + fcu_url, shell=True)
@@ -72,6 +76,8 @@ def main():
 
     # Finally rosrun mavros
     rosrun_args = "rosrun mavros mavros_node __name:=" + "mavros" + " __ns:=" + ns
+    if args.rtcm_topic:
+        rosrun_args = rosrun_args + " mavros/gps_rtk/send_rtcm:=" + args.rtcm_topic
     rosrun_out = open(temp_dir+"/mavros.out", 'w')
     rosrun_err = open(temp_dir+"/mavros.err", 'w')
     try:

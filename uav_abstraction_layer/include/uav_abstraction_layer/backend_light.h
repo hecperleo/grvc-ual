@@ -38,6 +38,7 @@ class BackendLight : public Backend {
 
 public:
     BackendLight();
+    ~BackendLight();
 
     /// Backend is initialized and ready to run tasks?
     bool	         isReady() const override;
@@ -80,7 +81,7 @@ private:
     void initHomeFrame();
     bool referencePoseReached() const;
     void move();
-    Velocity calcVel(Pose _target_pose);
+    Velocity calculateRefVel(Pose _target_pose);
 
     geometry_msgs::PoseStamped home_pose_;
     geometry_msgs::PoseStamped ref_pose_;
@@ -90,9 +91,14 @@ private:
     geometry_msgs::TwistStamped ref_vel_;
     geometry_msgs::TwistStamped cur_vel_;
 
-    //Gazebo animated link
-    std::string link_name_;
-    ros::Publisher link_state_publisher_;
+    //Gazebo animated model
+    std::string model_name_;
+    bool has_pose_ = false;
+    geometry_msgs::Pose model_pose_;
+    ros::Publisher model_state_publisher_;
+    ros::Subscriber model_state_subscriber_;
+    ros::ServiceClient wrench_client_;
+    ros::Timer rotors_timer_;
 
     //Noise
     std::default_random_engine generator_;
@@ -101,11 +107,11 @@ private:
     //Control
     bool flying_ = false;
     bool control_in_vel_ = false;
-    float max_h_vel_;
-    float max_v_vel_;
-    float max_yaw_vel_;
-    float max_pose_error_;
-    float max_orient_error_;
+    float max_horizontal_velocity_;
+    float max_vertical_velocity_;
+    float max_yaw_rate_;
+    float max_position_error_;
+    float max_orientation_error_;
 
     int robot_id_;
     std::string pose_frame_id_;
