@@ -16,7 +16,7 @@
 
   <xacro:include filename="$(find velodyne_description)/urdf/HDL-32E.urdf.xacro"/>
   <HDL-32E parent="base_link" name="velodyne" topic="/velodyne_points" hz="10" samples="220" gpu="true">
-    <origin xyz="0 0 0" rpy="0 0 0" />
+    <origin xyz="0 0 0" rpy="3.14 0 0" />
   </HDL-32E>
 
   <!-- macros for gazebo plugins, sensors -->
