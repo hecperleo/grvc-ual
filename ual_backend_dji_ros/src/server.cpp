@@ -18,37 +18,26 @@
 // OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //----------------------------------------------------------------------------------------------------------------------
+#include <uav_abstraction_layer/ual.h>
 #include <uav_abstraction_layer/backend.h>
+#include <ual_backend_dji_ros/ual_backend_dji_ros.h>
 #include <ros/ros.h>
 
-namespace grvc { namespace ual {
+int main(int _argc, char** _argv) {
 
-Backend::Backend() {
-    // Make communications spin!
-    spin_thread_ = std::thread([this]() {
-        ros::MultiThreadedSpinner spinner(2); // Use 2 threads
-        spinner.spin();
-    });
+    ros::init(_argc, _argv, "ual_server");
+
+    grvc::ual::UAL ual(new grvc::ual::BackendDjiRos());
+
+    int uav_id;
+    ros::param::param<int>("~uav_id", uav_id, 1);
+
+    while (!ual.isReady() && ros::ok()) {
+        ROS_WARN("UAL %d not ready!", uav_id);
+        sleep(1);
+    }
+    ROS_INFO("UAL %d ready!", uav_id);
+    while (ros::ok()) { sleep(1); }
+
+    return 0;
 }
-
-Backend::~Backend() {
-    if (spin_thread_.joinable()) { spin_thread_.join(); }
-}
-
-bool Backend::isIdle() {
-    return !running_task_;
-}
-
-void Backend::abort(bool _freeze) {
-    // Block until end of task
-    while (running_task_) {
-        abort_ = true;
-        freeze_ = _freeze;
-        std::this_thread::yield();
-     }
-    // Reset flag
-    abort_ = false;
-    freeze_ = false;
-}
-
-}}	// namespace grvc::ual

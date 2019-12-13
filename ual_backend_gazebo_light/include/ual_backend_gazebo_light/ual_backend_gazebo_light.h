@@ -22,7 +22,7 @@
 #define UAV_ABSTRACTION_LAYER_BACKEND_LIGHT_H
 
 #include <thread>
-#include <Eigen/Core>
+#include <random>
 
 #include <uav_abstraction_layer/backend.h>
 #include <ros/ros.h>
@@ -36,11 +36,11 @@
 
 namespace grvc { namespace ual {
 
-class BackendLight : public Backend {
+class BackendGazeboLight : public Backend {
 
 public:
-    BackendLight();
-    ~BackendLight();
+    BackendGazeboLight();
+    ~BackendGazeboLight();
 
     /// Backend is initialized and ready to run tasks?
     bool	         isReady() const override;
