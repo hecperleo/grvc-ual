@@ -3,7 +3,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 // The MIT License (MIT)
 // 
-// Copyright (c) 2016 GRVC University of Seville
+// Copyright (c) 2019 GRVC University of Seville
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 // documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
@@ -19,11 +19,15 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //----------------------------------------------------------------------------------------------------------------------
 #include <uav_abstraction_layer/ual.h>
+#include <uav_abstraction_layer/backend.h>
+#include <ual_backend_crazyflie/ual_backend_crazyflie.h>
 #include <ros/ros.h>
 
 int main(int _argc, char** _argv) {
 
-    grvc::ual::UAL ual(_argc,_argv);
+    ros::init(_argc, _argv, "ual_server");
+
+    grvc::ual::UAL ual(new grvc::ual::BackendCrazyflie());
 
     int uav_id;
     ros::param::param<int>("~uav_id", uav_id, 1);

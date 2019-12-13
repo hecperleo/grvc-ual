@@ -22,7 +22,7 @@
 #define UAV_ABSTRACTION_LAYER_BACKEND_LIGHT_H
 
 #include <thread>
-#include <Eigen/Core>
+#include <random>
 
 #include <uav_abstraction_layer/backend.h>
 #include <ros/ros.h>
@@ -30,15 +30,17 @@
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/TwistStamped.h>
 #include <geometry_msgs/TransformStamped.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <tf2_ros/static_transform_broadcaster.h>
+#include <tf2_ros/transform_listener.h>
 
 namespace grvc { namespace ual {
 
-class BackendLight : public Backend {
+class BackendGazeboLight : public Backend {
 
 public:
-    BackendLight();
-    ~BackendLight();
+    BackendGazeboLight();
+    ~BackendGazeboLight();
 
     /// Backend is initialized and ready to run tasks?
     bool	         isReady() const override;
@@ -79,7 +81,7 @@ public:
 
 private:
     void initHomeFrame();
-    bool referencePoseReached() const;
+    bool referencePoseReached();
     void move();
     Velocity calculateRefVel(Pose _target_pose);
 
@@ -112,6 +114,9 @@ private:
     float max_yaw_rate_;
     float max_position_error_;
     float max_orientation_error_;
+    float position_th_;
+    float orientation_th_;
+    // float hold_pose_time_;  // TODO: add?
 
     int robot_id_;
     std::string pose_frame_id_;
@@ -119,6 +124,8 @@ private:
     std::string uav_frame_id_;
     tf2_ros::StaticTransformBroadcaster * static_tf_broadcaster_;
     std::map <std::string, geometry_msgs::TransformStamped> cached_transforms_;
+    tf2_ros::Buffer tf_buffer_;
+    tf2_ros::TransformListener tf_listener_;
     ros::Time last_command_time_;
 
     std::thread offboard_thread_;

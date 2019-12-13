@@ -18,96 +18,77 @@
 // OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //----------------------------------------------------------------------------------------------------------------------
-#ifndef UAV_ABSTRACTION_LAYER_UAL_H
-#define UAV_ABSTRACTION_LAYER_UAL_H
+#ifndef UAV_ABSTRACTION_LAYER_BACKEND_UE_H
+#define UAV_ABSTRACTION_LAYER_BACKEND_UE_H
+
+
+#ifdef UAL_UE_COMPATIBILITY
+
+//#include <thread>
+//#include <vector>
+#include <Eigen/Core>
 
 #include <uav_abstraction_layer/backend.h>
-#include <uav_abstraction_layer/GoToWaypoint.h>
-#include <uav_abstraction_layer/TakeOff.h>
-#include <uav_abstraction_layer/Land.h>
-#include <uav_abstraction_layer/State.h>
-#include <thread>
+
+
+#ifdef UAL_UE_COMPATIBILITY
+    #include <vehicles/multirotor/api/MultirotorRpcLibClient.hpp>
+#endif
 
 namespace grvc { namespace ual {
 
-/// UAL replicates Backend interface, with some extras
-class UAL {
+class BackendUE : public Backend {
+
 public:
+    BackendUE();
+    ~BackendUE();
 
-    UAL(Backend* _backend);
-    ~UAL();
-
-    /// Initialized and ready to run tasks?
-    bool	 isReady() const { return backend_->isReady(); }
-
-    /// Idle?
-    bool     isIdle() const { return backend_->isIdle(); }
-
+    /// Backend is initialized and ready to run tasks?
+    bool	         isReady() const override;
     /// Latest pose estimation of the robot
-    Pose	 pose() const { return backend_->pose(); }
-
+    virtual Pose	 pose() override;
     /// Latest velocity estimation of the robot
-    Velocity velocity() const { return backend_->velocity(); }
-
+    virtual Velocity velocity() const override;
     /// Latest odometry estimation of the robot
-    Odometry odometry() const { return backend_->odometry(); }
-
+    virtual Odometry odometry() const override;
     /// Latest transform estimation of the robot
-    Transform transform() const { return backend_->transform(); }
-
-    /// Current robot state
-    uav_abstraction_layer::State state() {
-        uav_abstraction_layer::State output;
-        output.state = backend_->state();
-        return output;
-    }
+    virtual Transform transform() const override;
 
     /// Set pose
     /// \param _pose target pose
-    bool    setPose(const geometry_msgs::PoseStamped& _pose);
+    void    setPose(const geometry_msgs::PoseStamped& _pose) override;
 
     /// Go to the specified waypoint, following a straight line
     /// \param _wp goal waypoint
-    /// \param _blocking indicates if function call is blocking (default = true)
-    bool	goToWaypoint(const Waypoint& _wp, bool _blocking = true);
+    void	goToWaypoint(const Waypoint& _wp) override;
 
     /// Go to the specified waypoint in geographic coordinates, following a straight line
     /// \param _wp goal waypoint in geographic coordinates
-    /// \param _blocking indicates if function call is blocking (default = true)
-    bool	goToWaypointGeo(const WaypointGeo& _wp, bool _blocking = true);
+    void	goToWaypointGeo(const WaypointGeo& _wp) override;
 
+    /// Follow a list of waypoints, one after another
+    // void trackPath(const Path& _path) override;
     /// Perform a take off maneuver
     /// \param _height target height that must be reached to consider the take off complete
-    /// \param _blocking indicates if function call is blocking (default = true)
-    bool    takeOff(double _height, bool _blocking = true);
-
-    /// Land on the current position
-    /// \param _blocking indicates if function call is blocking (default = true)
-    bool	land(bool _blocking = true);
-
+    void    takeOff(double _height) override;
+    /// Land on the current position.
+    void	land() override;
     /// Set velocities
     /// \param _vel target velocity in world coordinates
-    bool    setVelocity(const Velocity& _vel);
-
+    void    setVelocity(const Velocity& _vel) override;
     /// Recover from manual flight mode
     /// Use it when FLYING uav is switched to manual mode and want to go BACK to auto.
-    /// Call is blocking by definition.
-    bool    recoverFromManual();
+    void    recoverFromManual() override;
+    /// Set home position
+    void    setHome(bool set_z) override;
 
-    /// Set home position (Needed to fix px4 local pose drift)
-    bool    setHome(bool set_z = false);
-
-protected:
-    Backend* backend_;
-    std::thread running_thread_;
-    std::thread server_thread_;
-
-    int robot_id_;
-    bool id_is_unique_;
-
-    void validateOrientation(geometry_msgs::Quaternion& _q);
+private:
+    msr::airlib::MultirotorRpcLibClient airsim_client_;
+    Eigen::Matrix3f ned2enu_;
 };
 
 }}	// namespace grvc::ual
 
-#endif  // UAV_ABSTRACTION_LAYER_UAL_H
+#endif  // UAL_UE_COMPATIBILITY
+
+#endif // UAV_ABSTRACTION_LAYER_BACKEND_UE_H
